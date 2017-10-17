@@ -12,12 +12,12 @@ private [GuessTheNumber] class GuessTheNumberActor extends PersistentActor {
     event match {
       case AddVictory(id) =>
         map.get(id) match {
-          case Some((x, y)) => map(id) = (x + 1, y)
+          case Some((won, lost)) => map(id) = (won + 1, lost)
           case None => map(id) = (1, 0)
         }
       case AddDefeat(id) =>
         map.get(id) match {
-          case Some((x, y)) => map(id) = (x, y + 1)
+          case Some((won, lost)) => map(id) = (won, lost + 1)
           case None => map(id) = (0, 1)
         }
     }

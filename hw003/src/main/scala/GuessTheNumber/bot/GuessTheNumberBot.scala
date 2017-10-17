@@ -36,7 +36,6 @@ class GuessTheNumberBot(val token: String, val database: ActorRef)
         reply("You're playing!")
       } else {
         gameSessions(command.chat.id) = random.nextInt(upperBound)
-        println(gameSessions(command.chat.id))
         reply("Guess the number in [0; 1000]!")
       }
     }
@@ -57,7 +56,9 @@ class GuessTheNumberBot(val token: String, val database: ActorRef)
     implicit command => {
       implicit val timeout: Timeout = Timeout(1.second)
       (database ? GetStats(command.chat.id)).onComplete {
-        case Success(Stats((x, y))) => reply("+ " + x + "\n- " + y + "\n% " + 100d * x / (x + y))
+        case Success(Stats((won, lost))) =>
+          val winRatePercent = 100d * won / (won + lost)
+          reply(s"+ $won\n- $lost\n% $winRatePercent")
         case _ => reply("Database error.")
       }
     }
@@ -68,15 +69,17 @@ class GuessTheNumberBot(val token: String, val database: ActorRef)
       message.text.foreach { text =>
         if (!commands.contains(text)) {
           MessageParser.parse(text) match {
-            case IntegerFromUser(x) =>
+            case IntegerFromUser(userNumber) =>
                gameSessions.get(message.chat.id) match {
-                 case Some(y) =>
-                   if (x == y) {
+                 case Some(actualNumber) =>
+                   if (userNumber == actualNumber) {
                      gameSessions -= message.chat.id
                      database ! AddVictory(message.chat.id)
                      reply("Correct!")
                    } else {
-                     reply("My number is " + (if (y > x) "bigger" else "less") +  " than yours!")
+                     reply("My number is "
+                       + (if (actualNumber > userNumber) "bigger" else "less")
+                       + " than yours!")
                    }
                  case None => reply("You're not playing!")
                }
