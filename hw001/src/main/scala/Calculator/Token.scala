@@ -28,20 +28,18 @@ private[Calculator] case object Number extends Token {}
 
 /**
   * Left bracket is used as operator with maximal precedence.
-  * Way of evaluation is undefined because it should never be called
   */
 private[Calculator] case object LeftBracket extends UnaryOperator {
-  override def eval(x: Double): Double = ???
+  override def eval(x: Double): Double = 0
   override val precedence: Int = 10
   override val associativity: AssociativityOption.Value = AssociativityOption.Left
 }
 
 /**
   * Right bracket is used as operator with minimal precedence.
-  * Way of evaluation is undefined because 'eval' method should never be called
   */
 private[Calculator] case object RightBracket extends UnaryOperator {
-  override def eval(x: Double): Double = ???
+  override def eval(x: Double): Double = 0
   override val precedence: Int = 0
   override val associativity: AssociativityOption.Value = AssociativityOption.Left
 }
